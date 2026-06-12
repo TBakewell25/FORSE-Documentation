@@ -1,4 +1,4 @@
-Usage
+Basic Usage
 =====
 
 .. _installation:
@@ -6,11 +6,26 @@ Usage
 Installation
 ------------
 
-To use Lumache, first install it using pip:
+To use FORSE, first download the source code via the GitHub repository:
 
+.. note::
+    There are two ways to clone the respository:\n
+    \t 1. As you would any other repository, with the standard 'git pull' command\n
+    or\n
+    \t 2. Recursively cloning the submodules, allowing access to the site_cache repo (recommended)\n
+    Both are provided as examples below.
+
+Clone without submodules (no site_cache access):
 .. code-block:: console
 
-   (.venv) $ pip install lumache
+   git clone git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
+
+Or, with submodules (additionally clones site_cache repo):
+.. code-block:: console
+
+    git clone --recurse-submodules git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
+    
+
 
 Creating recipes
 ----------------
