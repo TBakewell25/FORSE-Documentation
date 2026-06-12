@@ -9,11 +9,11 @@ Installation
 To use FORSE, first download the source code via the GitHub repository:
 
 .. note::
-    There are two ways to clone the respository:\n
-    \t 1. As you would any other repository, with the standard 'git pull' command\n
-    or\n
-    \t 2. Recursively cloning the submodules, allowing access to the site_cache repo (recommended)\n
-    Both are provided as examples below.
+    | There are two ways to clone the respository:\n
+    | 1. As you would any other repository, with the standard 'git pull' command
+    | or
+    | 2. Recursively cloning the submodules, allowing access to the site_cache repo (recommended)\n
+    | Both are provided as examples below.
 
 Clone without submodules (no site_cache access):
 .. code-block:: console
