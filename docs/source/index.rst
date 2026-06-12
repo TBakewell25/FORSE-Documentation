@@ -1,7 +1,7 @@
 Welcome to FORSE's documentation!
 ===================================
 
-The **FO** rest **S** patially **E** xplicit model (FORSE) is a Python based forest gap simulation developed initially
+The **FOR**\est **S** patially **E** xplicit model (FORSE) is a Python based forest gap simulation developed initially
 for usage in the boreal forests of Siberia. It pulls data from various sources (MERRA2, CMIP6, etc.) to predict changes in 
 forest stand composition under various flexible, configurable scenarios.
 
