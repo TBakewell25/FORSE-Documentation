@@ -1,10 +1,9 @@
-Welcome to Lumache's documentation!
+Welcome to FORSE's documentation!
 ===================================
 
-**Lumache** (/lu'make/) is a Python library for cooks and food lovers
-that creates recipes mixing random ingredients.
-It pulls data from the `Open Food Facts database <https://world.openfoodfacts.org/>`_
-and offers a *simple* and *intuitive* API.
+The **FO**rest **S**patially **E**xplicit model (FORSE) is a Python based forest gap simulation developed initially
+for usage in the boreal forests of Siberia. It pulls data from various sources (MERRA2, CMIP6, etc.) to predict changes in 
+forest stand composition under various flexible, configurable scenarios.
 
 Check out the :doc:`usage` section for further information, including
 how to :ref:`installation` the project.
