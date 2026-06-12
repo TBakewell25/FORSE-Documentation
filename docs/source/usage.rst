@@ -15,12 +15,14 @@ To use FORSE, first download the source code via the GitHub repository:
     | 2. Recursively cloning the submodules, allowing access to the site_cache repo (recommended)
     | Both are provided as examples below.
 
-Clone without submodules (no site_cache access)\:
+Clone without submodules (no site_cache access):
+
 .. code-block:: console
 
    git clone git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
 
-Or, with submodules (additionally clones site_cache repo)\:
+Or, with submodules (additionally clones site_cache repo):
+
 .. code-block:: console
 
     git clone --recurse-submodules git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
