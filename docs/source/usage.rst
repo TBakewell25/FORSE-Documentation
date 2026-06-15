@@ -3,7 +3,7 @@ Getting Started
 
 .. _install:
 
-Installation
+Install
 ------------
 
 To use FORSE, first download the source code via the GitHub repository:
