@@ -41,4 +41,19 @@ In addition to these tables, the driver file used for the run is included, impro
 Calling FORSE
 -------------
 
+The model can be called from the command line using the Python interpreter directly. The following are accepted as arguments:
+
+    - ``-h``: print a help menu (not a required argument)
+    - ``--no-numba``: run the model without doing Numba compilation (not a required argument)
+    - ``-v``: run in verbose mode, print output to STDOUT (not a required argument)
+    - ``-d``: print debug info to STDOUT (not a required argument)
+    - ``--dem <input_dem>``: specify the input DEM (**required**)
+    - ``--version``: print the model version (not a required argument)
+    - ``--clean``: remove all project files except for DEM and driver after run (not a required argument)
+    - ``<driver_file>``: the input driver file (**required**)
+    - ``<output_file>``: output filename for hdf5 (**required**)
+
+.. code-block:: console
+
+    source/forse.py [-h] [--no_numba] [-v] [-d] [--dem DEM] <input_dem> [--version] [--clean] <driver_file> <output_file>
 
