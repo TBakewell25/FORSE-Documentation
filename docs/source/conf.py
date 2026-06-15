@@ -3,7 +3,7 @@
 # -- Project information
 
 project = 'FORSE'
-copyright = '2021, Thomas Bakewell'
+copyright = '2026, Thomas Bakewell'
 author = 'Thomas Bakewell'
 
 release = '0.1'

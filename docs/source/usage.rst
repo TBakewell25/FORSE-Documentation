@@ -37,29 +37,30 @@ your computer). The FORSE environment is buildable both via Conda and Venv, alth
 Build With Conda
 ----------------
 
-First, 'Conda <https://anaconda.org>'_ must be installed as a sytem wide package:
+First, `Conda <http://www.anaconda.org>`_ must be installed as a sytem wide package. Conda (or 'anaconda', depending on your installation)
+provides the aforementioned environment for running FORSE. It is possible that Conda is already installed on your system if you are not using
+your personal machine, consult your system administrator if you are unsure.
+
+Within the root directory of the FORSE repository is a file ``environment.yml``. The contents of this file are a plain-text list of all the dependencies
+required by the FORSE environment, which Conda will use as reference. Use the following command to build a Conda environment from this template:
 
 .. code-block:: console
 
-    
+    conda env create -f environment.yml
 
-Creating recipes
-----------------
+This command should initiate the installation of this environment. Upon completion, you should see this environment, ``forse``, listed among your installed environments 
+when you use the following command:
 
-To retrieve a list of random ingredients,
-you can use the ``lumache.get_random_ingredients()`` function:
+.. code-block:: console
 
-.. autofunction:: lumache.get_random_ingredients
+    conda env list
 
-The ``kind`` parameter should be either ``"meat"``, ``"fish"``,
-or ``"veggies"``. Otherwise, :py:func:`lumache.get_random_ingredients`
-will raise an exception.
+Now, having installed the environment to Conda, you must activate it:
 
-.. autoexception:: lumache.InvalidKindError
+.. code-block:: console
 
-For example:
+    conda activate forse
 
->>> import lumache
->>> lumache.get_random_ingredients()
-['shells', 'gorgonzola', 'parsley']
+Build With Pip
+--------------
 
