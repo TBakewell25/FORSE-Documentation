@@ -6,7 +6,7 @@ for usage in the boreal forests of Siberia. It pulls data from various sources (
 forest stand composition under various flexible, configurable scenarios.
 
 Check out the :doc:`usage` section for further information, including
-how to :ref:`installation` the project.
+how to :ref:`install` the project.
 
 .. note::
 

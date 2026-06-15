@@ -1,7 +1,7 @@
 Getting Started
 =====
 
-.. _installation:
+.. _install:
 
 Installation
 ------------
