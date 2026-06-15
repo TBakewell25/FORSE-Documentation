@@ -30,11 +30,11 @@ HDF5 Data
 The primary output of FORSE is a single HDF5 file, the name of which is provided as an argument. The HDF5 is a hierarchical file that stores 
 detailed output from the run. For each run the file stores yearly per-plot, per-species tables of the following:
 
-    -DBH
-    -Species Code
-    -Basal Area
-    -Biomass
-    -Stem Density
+    - DBH
+    - Species Code
+    - Basal Area
+    - Biomass
+    - Stem Density
 
 In addition to these tables, the driver file used for the run is included, improving the reproducibility of this data.
 
