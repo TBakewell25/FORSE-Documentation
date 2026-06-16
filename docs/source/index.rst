@@ -12,8 +12,6 @@ how to :ref:`install` the project.
 
    This project is under active development.
 
-Contents
---------
 
 .. toctree::
     :maxdepth: 2
