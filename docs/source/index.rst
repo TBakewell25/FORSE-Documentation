@@ -6,7 +6,7 @@ The **FOR**\est **S**\patially **E**\xplicit model (FORSE) is a Python based for
 for usage in the boreal forests of Siberia. It pulls data from various sources (MERRA2, CMIP6, etc.) to predict changes in 
 forest stand composition under various flexible, configurable scenarios.
 
-Check out the :doc:`usage` section for further information, including
+Check out the :doc:`pages/usage` section for further information, including
 how to :ref:`install` the project.
 
 .. note::
@@ -18,9 +18,5 @@ how to :ref:`install` the project.
     :maxdepth: 2
     :caption: For Users
     Getting Started </pages/usage>
-    smce
-    pages/running   
-
-.. toctree::
-    :maxdepth: 2
-    :caption: For Developers
+    pages/smce
+    pages/running
