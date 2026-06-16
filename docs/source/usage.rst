@@ -11,7 +11,9 @@ To use FORSE, first download the source code via the GitHub repository:
 .. note::
     | There are two ways to clone the respository:
     |     1. As you would any other repository, with the standard 'git pull' command
+    |
     | or
+    |
     |     2. Recursively cloning the submodules, allowing access to the site_cache repo (recommended)
     | Both are provided as examples below.
 
@@ -33,6 +35,7 @@ Building the Run Environment
 Running the FORSE model requires building a runtime environment for the many dependencies. Python environments 
 provide a way to install many library packages (NumPy, Matplotlib, etc.) without disturbing the host system (i.e 
 your computer). The FORSE environment is buildable both via Conda and Venv, although Conda is more common in practice.
+
 
 Build With Conda
 ----------------
@@ -98,8 +101,6 @@ After you are finished using the virtual environment it can be quickly deactivat
     and will not work if that is not the case. If installation issues arise surrounding GDAL consider either installing the base library to your machine manually,
     or switching to Conda.
 
-Some Helpful Notes
-------------------
 
 
 
