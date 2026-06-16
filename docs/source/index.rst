@@ -17,6 +17,7 @@ how to :ref:`install` the project.
 .. toctree::
     :maxdepth: 2
     :caption: For Users
+
     Getting Started </pages/usage>
     pages/smce
     pages/running
