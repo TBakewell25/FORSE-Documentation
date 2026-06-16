@@ -1,5 +1,6 @@
+=================================
 Welcome to FORSE's documentation!
-===================================
+=================================
 
 The **FOR**\est **S**\patially **E**\xplicit model (FORSE) is a Python based forest gap simulation developed initially
 for usage in the boreal forests of Siberia. It pulls data from various sources (MERRA2, CMIP6, etc.) to predict changes in 
@@ -15,7 +16,6 @@ how to :ref:`install` the project.
 
 .. toctree::
     :maxdepth: 2
-    :hidden:
     :caption: For Users
     Getting Started </pages/usage>
     pages/smce
@@ -23,5 +23,4 @@ how to :ref:`install` the project.
 
 .. toctree::
     :maxdepth: 2
-    :hidden: 
     :caption: For Developers
