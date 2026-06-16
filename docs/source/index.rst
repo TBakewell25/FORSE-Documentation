@@ -19,7 +19,7 @@ Contents
     :maxdepth: 2
     :hidden:
     :caption: For Users
-    Getting Started <usage>
+    Getting Started <pages/usage>
 
     smce
     running   
