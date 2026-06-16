@@ -34,7 +34,7 @@ explanatory text, while also providing plotting and tabular data representation 
 
 FORSE does not directly expose an API that allows it to be called in Python syntax, so in order to script running the model from Jupyter you must use the ``exec()`` function, a member of the
 ``os`` module. The ``exec()`` function instructs the operating system to execute the command specified by the argument, allowing for this command to run as a separate process. We call the FORSE
- model by using ``exec()`` to issue commands that we might have otherwise used in the terminal. For instance, the following command is used to call the FORSE model from the root project directory
+model by using ``exec()`` to issue commands that we might have otherwise used in the terminal. For instance, the following command is used to call the FORSE model from the root project directory
 in a terminal environment:
 
 .. code-block:: console
