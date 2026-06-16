@@ -23,11 +23,11 @@ Clone without submodules (no site_cache access):
 
    git clone git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
 
-Or, with submodules (additionally clones site_cache repo):
+# Or, with submodules (additionally clones site_cache repo):
 
-.. code-block:: console
+# .. code-block:: console
 
-    git clone --recurse-submodules git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
+#    git clone --recurse-submodules git@github.com:aharmstrong/FORSE-Spatially-Explicit-Forest-Model.git
     
 Building the Run Environment
 ----------------------------
