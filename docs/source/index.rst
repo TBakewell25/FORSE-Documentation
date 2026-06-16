@@ -16,7 +16,15 @@ Contents
 --------
 
 .. toctree::
+    :maxdepth: 2
+    :hidden:
+    :caption: For Users
+    Getting Started </docs/source/usage>
 
-   usage
-   smce
-   running   
+    smce
+    running   
+
+.. toctree::
+    :maxdepth: 2
+    :hidden: 
+    :caption: For Developers
