@@ -17,4 +17,5 @@ The SMCE FORSE Environment
 The full FORSE environment, the contents and purpose of which are described in other sections of this literature, is available to all users via a 
 global Conda-Store environment.
 
+.. image:: ../images/smce/environ.png
 
