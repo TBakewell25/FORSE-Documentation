@@ -19,10 +19,9 @@ Contents
     :maxdepth: 2
     :hidden:
     :caption: For Users
-    Getting Started <pages/usage>
-
-    smce
-    running   
+    Getting Started </pages/usage>
+    pages/smce
+    pages/running   
 
 .. toctree::
     :maxdepth: 2
