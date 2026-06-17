@@ -5,124 +5,291 @@ What a Driver File Is
 ---------------------
 
 .. Explain the driver file concept:
-   - A plain Python file that returns a configuration dictionary
+   - A plain Python file that builds and returns a configuration dictionary called `driver`
    - Associates a specific run site with its parameters (DEM, climate, species)
-   - Contains both static configuration and functions (e.g. return_warming_weather)
-   - Why Python was chosen over JSON/YAML (flexibility for climate scenario functions)
+   - Contains both static key/value configuration and callable functions
+     (e.g. return_warming_weather, log_this_year_function)
+   - Why Python was chosen over JSON/YAML: the climate scenario block requires
+     real functions (lambdas, closures) that JSON cannot express
    Mention load_driver.py and how it imports the driver at runtime.
 
+In the FORSE model Python source files known as 'driver files' are used to provide both data and runtime
+configuration settings to the run. The model ingests these as arguments from the command line, executes them via 
+a call to the Python interpreter, and parses the Python dictionary of information that they return. 
 
-Required Parameters
--------------------
+Driver files serve a few crucial purposes that allow the model to remain simulateneously modular and fine-grained.
 
-.. Fill in the Description and Expected Value columns for every key the model
-   requires. You can find these by reading driver_latest.py and tracing which
-   keys forse.py accesses from the driver dictionary.
+Top-Level Parameters
+--------------------
+
+.. Fill in the Description column. The Type and default columns are already correct.
+   Add any parameters you find in the driver that are missing from this table.
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 20 50
+   :widths: 40 15 45
 
    * - Parameter
      - Type
      - Description
-   * - ``SITE_NAME``
+   * - ``LAT``, ``LON``
+     - ``float``
+     - lattitude and longitude of the DEM center
+   * - ``run_description``
      - ``str``
-     -
-   * - ``NX``
+     - plaintext description of the run site, does not affect runtime behavior
+   * - ``TITLE``
+     - ``str``
+     - model title, does not affect runtime behavior
+   * - ``sim_start_year``
      - ``int``
-     -
-   * - ``NY``
+     - the first year of simulation
+   * - ``sim_stop_year``
      - ``int``
-     -
-   * - ``NTREES``
+     - the last year of simulation
+   * - ``LIGHT_MODE``
+     - ``str``
+     - Must be ``"3D"`` signyfying 3D ray-tracing for light simulation
+   * - ``MAX_TREES_PER_PLOT``
      - ``int``
-     -
-   * - ``NYEARS``
+     - the maximum number of trees an individual plot can hold
+   * - ``MAX_TREE_HEIGHT``
      - ``int``
+     - the maximum height of an individual tree
+   * - ``DDBASE``
+     - ``float``
+     - degree day base for growth (°C). Typically ``5``.
+   * - ``PHIB``
+     - ``float``
+     - fraction of solar radiation that is direct
+   * - ``PHID``
+     - ``float``
+     - fraction of solar radiation that is diffuse
+   * - ``AET_RATIO``
+     - ``float``
+     - ratio of Actual Evapotranspiration to Potential Evapotranspiration
+   * - ``WTD``
+     - ``float``
      -
-   * - ``NSPECIES``
-     - ``int``
+   * - ``ALLOW_REGENERATION``
+     - ``bool``
+     - allow trees to regenerate stochastically
+   * - ``CLIMATE_RANDOM``
+     - ``bool``
+     - Setting this parameter to False results in reproducible runs. Setting it True will make each run have random climate, as much as statistics allow.
+   * - ``PERMAFROST``
+     - ``bool``
+     - toggle switch for permafrost module
+   * - ``WILDFIRE``
+     - ``bool``
+     - toggle switch for wildfire module
+   * - ``INSECT_OUTBREAK``
+     - ``bool``
+     - If true, a combination of warm spring and stressed trees result in greater mortality than SMORT & AMORT; if false, not activated
+   * - ``DEBUG``
+     - ``bool``
+     - toggle for debug mode
+
+
+File Path Parameters
+--------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 50 50
+
+   * - Parameter
+     - Description
+   * - ``DEM_file_path``
+     - the path to the input DEM, specified by ``--dem`` flag
+   * - ``DEM_no_data``
+     - empty DEM for fallback
+   * - ``elevation_lapse_rate_adjustment_matrix_filepath``
+     - the path to the DEM temperature offset data
+   * - ``monthly_radiation_files_path``
+     - the path to month by month radiation data
+   * - ``Radiation_fraction_file_path``
      -
-   * - ``SPECIES_LIST``
-     - ``list``
+   * - ``Site_index_file_path``
+     - path to a file containing a per plot index value
+   * - ``Site_index``
+     - value describing how well species perform at a site (1 = good, 5 = poor)
+
+
+Climate Configuration
+---------------------
+
+.. The climate block is the most complex part of the driver. Describe the three-phase
+   weather system: pre-MERRA2 (statistical), MERRA2 reanalysis (daily), and future
+   (CMIP6 or warming scenario). Describe the 7 named options from driver_latest.py
+   and when each is appropriate.
+
+The driver supports seven climate configuration options, ranging from purely
+statistical weather to hybrid MERRA2/CMIP6 approaches.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Parameter
+     - Description
+   * - ``annual_weather_function_type``
+     - ``"Daily"`` or ``"Stats"``. Controls pre-MERRA2 weather generation.
+   * - ``return_annual_weather_function``
+     - Read real data and return daily temperature and monthly precipitation.
+   * - ``Real_Climate_Start_Year``
+     -
+   * - ``Real_Climate_End_Year``
+     -
+   * - ``Real_Climate_Time_Step``
+     - time increment for real climate data points
+   * - ``return_annual_past_weather_function``
+     -
+   * - ``annual_future_weather_function_type``
+     -
+   * - ``return_annual_future_weather_function``
+     -
+
+The ``return_warming_weather`` Function
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. Describe the warming scenario function defined at the top of the driver file
+   (outside the dictionary). Explain:
+   - The CMIP6 site-specific vectors: DT_site, XT_site, VT_site, XR_site, VR_site
+   - The equation_factory closure pattern
+   - The three phases: before warming_start_year, during warming, after warming_stop_year
+   - How to update site-specific vectors (reference the Colab notebook in the comment)
+
+
+Logging Treatment Parameters
+-----------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 45 55
+
+   * - Parameter
+     - Description
+   * - ``LOGGING_TREATMENT_TYPE``
+     - ``None``, ``"Stripcut"``, ``"Shelterwood"``, or ``"Clearcut"``.
+   * - ``LOGGING_TREATMENT_FREQ``
+     - Harvest interval in years.
+   * - ``LOGGING_TREATMENT_START_YEAR``
+     - First year of logging treatment.
+   * - ``LOGGING_STRIPCUT_DIRECTION``
+     - Strip direction in degrees.
+   * - ``LOGGING_STRIPCUT_CLEAR_WIDTH``
+     - Width (m) of cleared strip.
+   * - ``LOGGING_STRIPCUT_KEEP_WIDTH``
+     - Width (m) of retained strip.
+   * - ``LOGGING_TREATMENT_SHELTERWOOD_DBH``
+     - Eligible DBH values for logged trees.
+   * - ``LOGGING_TREATMENT_SHELTERWOOD_CUT_PERCENT``
+     - Percentage of trees to be logged.
+   * - ``LOGGING_TREATMENT_SHELTERWOOD_CUT_SPECIES``
+     - Species to be logged.
+
+
+Output Control Parameters
+--------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 45 55
+
+   * - Parameter
+     - Description
+   * - ``log_this_year_function``
+     - Lambda ``(year) -> bool``. Controls which years are written to HDF5.
+   * - ``export_solar_radiation_year_function``
+     - Lambda ``(year) -> bool``. Controls what solar radiation data is written.
+
+
+Soil Parameters
+---------------
+
+.. Soil properties are fetched automatically from online services using LAT/LON,
+   but can be overridden manually. Describe what each parameter represents.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 30 70
+
+   * - Parameter
+     - Description
+   * - ``Sand``
+     - Sand percentage of soil.
+   * - ``Clay``
+     - Clay percentage of soil.
+   * - ``FC``
+     -
+   * - ``WP``
+     -
+   * - ``soil["Od"]``
+     - O horizon depth (organic/humus layer).
+   * - ``soil["Ad"]``
+     - A horizon depth (mineral layer).
+   * - ``soil["itxt"]``
+     - Soil texture: ``1`` = granular, ``2`` = fine-textured.
+   * - ``soil["o_horizon_fc"]``
+     -
+   * - ``soil["a_horizon_fc"]``
      -
 
 
 Species Parameters
 ------------------
 
-.. Driver files define per-species parameters, typically as lists indexed by
-   species number. Describe each parameter and its units.
-   Fill in the table below — add or remove rows to match the actual parameters.
+.. The ``species`` key holds a dictionary keyed by 4-letter species code (e.g. ``"BEPA"``,
+   ``"PIGL"``). Describe each per-species parameter below.
+   The inline comments in driver_latest.py are a good source for these descriptions.
 
 .. list-table::
    :header-rows: 1
-   :widths: 30 20 50
+   :widths: 40 60
 
    * - Parameter
-     - Units
      - Description
-   * - ``AGEMX``
-     - years
-     -
-   * - ``DBHMX``
-     - cm
-     -
-   * - ``G``
-     - —
-     -
-   * - ``HTMX``
-     - m
-     -
-   * - ``C1``, ``C2``
-     - —
-     -
+   * - ``ENABLED``
+     - ``bool``. Set to ``False`` to exclude the species from the simulation.
+   * - ``STRESS_THRESHOLD``
+     - Fraction of optimal growth that must be achieved to avoid a stress flag (0–1).
+   * - ``SEED``
+     - Relative seed abundance (0.1, 0.31, or 0.56 based on occurrence).
+   * - ``DMAX``
+     - Maximum trunk diameter (cm).
+   * - ``BIOVOLUME_EQUATION``
+     - ``function(dbh) -> float``. Returns biovolume in m³.
+   * - ``BIOMASS_EQUATION``
+     - ``function(dbh) -> float``. Returns total biomass in Mg.
+   * - ``LEAF_AREA_EQUATION``
+     - ``function(dbh) -> float``. Returns leaf area in m².
+   * - ``AGE_MORTALITY_EQUATION``
+     - ``function() -> float``. Returns annual age-mortality probability (0–1).
+   * - ``BASAL_AREA_EQUATION``
+     - ``function(dbh) -> float``. Returns basal area in m².
+   * - ``OPTIMAL_GROWTH_INCREMENT_EQUATION``
+     - ``function(dbh) -> float``. Returns optimal annual DBH increment (cm).
+   * - ``TREE_HEIGHT_EQUATION``
+     - ``function(dbh) -> float``. Returns tree height in m.
+   * - ``SOIL_FERTILITY_FACTOR_EQUATION``
+     - ``function(fertility) -> float``. NUTRI: 1 = intolerant, 3 = tolerant.
+   * - ``SOIL_MOISTURE_FACTOR_EQUATION``
+     - ``function(dry_days) -> float``. MDRT: 1 = dry-intolerant, 5 = tolerant.
+   * - ``PERMAFROST_FACTOR_EQUATION``
+     - ``function -> float``. PFTOL: 1 = not inhibited, 2 = inhibited by permafrost.
+   * - ``DEGREE_DAY_FACTOR_EQUATION``
+     - ``function(GDD) -> float``. Requires DDMIN and DDMAX (°C·days).
+   * - ``AVAILABLE_LIGHT_FACTOR_EQUATION``
+     - ``function(light) -> float``. LIGHT: 1 = shade tolerant, 5 = intolerant.
+   * - ``LIGHT_COMPENSATION_POINT``
+     - Minimum light level for positive growth (0–1).
+   * - ``INSEEDING_LAG``
+     - Delay in years before seedlings of this species can establish.
+   * - ``WATER_LOG``
+     - Response function to waterlogging conditions.
+   * - ``CROWN_BASE_MAX_PERCENT``
+     - Maximum crown base height as fraction of total height. Conifers: 0.533; deciduous: 0.467.
 
 
-Climate Scenario Block
-----------------------
 
-.. Describe the return_warming_weather() function pattern used in driver files:
-   - Site-specific CMIP6 parameters (DT_site, XT_site, VT_site, XR_site, VR_site)
-   - The warming period (2021–2100) and piecewise linear warming rates
-   - How this function is called by generate_weather() in forse.py
-   - How to modify it for a different climate scenario
-
-
-Optional Parameters
--------------------
-
-.. Parameters that have defaults or can be omitted.
-
-.. list-table::
-   :header-rows: 1
-   :widths: 30 20 50
-
-   * - Parameter
-     - Default
-     - Description
-   * - ``LOGGING_TREATMENT_TYPE``
-     - ``None``
-     -
-   * - ``USE_NUMBA``
-     - ``True``
-     -
-   * - ``VERBOSE``
-     - ``False``
-     -
-
-
-Annotated Example
------------------
-
-.. Walk through a minimal but complete driver file, explaining each section.
-   Use the driver_latest.py file as your reference. You can include code blocks
-   with explanatory text between them, like a tutorial.
-
-.. code-block:: python
-
-   # Site identification
-   SITE_NAME = 'your_site_name'
-
-.. Add explanation here, then the next block, and so on.
