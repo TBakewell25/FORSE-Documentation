@@ -44,12 +44,12 @@ in a terminal environment:
 If we wanted to execute this same command from the context of a Notebook, we would do so thusly:
 
 .. code-block:: python
-    
+
     import os
 
-    exec("python3 source/forse.py --dem arcticDEM_nfi777611_10m_mf10.tiff driver_latest_nfi777611.py output.hf5")
+    os.system("python3 source/forse.py --dem arcticDEM_nfi777611_10m_mf10.tiff driver_latest_nfi777611.py output.hf5")
 
-Note that the string we pass as an argument is identical to our terminal command from before. 
+Note that the string we pass as an argument is identical to our terminal command from before.
 
 
 

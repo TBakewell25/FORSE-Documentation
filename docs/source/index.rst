@@ -25,3 +25,8 @@ how to :ref:`install` the project.
 .. toctree::
     :maxdepth: 2
     :caption: For Developers
+
+    pages/architecture
+    pages/simulation
+    pages/driver_reference
+    pages/extending
