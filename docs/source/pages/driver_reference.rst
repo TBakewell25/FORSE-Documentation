@@ -4,26 +4,12 @@ Driver File Reference
 What a Driver File Is
 ---------------------
 
-.. Explain the driver file concept:
-   - A plain Python file that builds and returns a configuration dictionary called `driver`
-   - Associates a specific run site with its parameters (DEM, climate, species)
-   - Contains both static key/value configuration and callable functions
-     (e.g. return_warming_weather, log_this_year_function)
-   - Why Python was chosen over JSON/YAML: the climate scenario block requires
-     real functions (lambdas, closures) that JSON cannot express
-   Mention load_driver.py and how it imports the driver at runtime.
-
 In the FORSE model Python source files known as 'driver files' are used to provide both data and runtime
 configuration settings to the run. The model ingests these as arguments from the command line, executes them via 
 a call to the Python interpreter, and parses the Python dictionary of information that they return. 
 
-Driver files serve a few crucial purposes that allow the model to remain simulateneously modular and fine-grained.
-
 Top-Level Parameters
 --------------------
-
-.. Fill in the Description column. The Type and default columns are already correct.
-   Add any parameters you find in the driver that are missing from this table.
 
 .. list-table::
    :header-rows: 1
@@ -34,61 +20,61 @@ Top-Level Parameters
      - Description
    * - ``LAT``, ``LON``
      - ``float``
-     - lattitude and longitude of the DEM center
+     - Latitude and longitude of the DEM center.
    * - ``run_description``
      - ``str``
-     - plaintext description of the run site, does not affect runtime behavior
+     - Plaintext description of the run site, does not affect runtime behavior.
    * - ``TITLE``
      - ``str``
-     - model title, does not affect runtime behavior
+     - Model title, does not affect runtime behavior.
    * - ``sim_start_year``
      - ``int``
-     - the first year of simulation
+     - The first year of simulation.
    * - ``sim_stop_year``
      - ``int``
-     - the last year of simulation
+     - The last year of simulation.
    * - ``LIGHT_MODE``
      - ``str``
-     - Must be ``"3D"`` signyfying 3D ray-tracing for light simulation
+     - Must be ``"3D"``, signifying 3D ray-tracing for light simulation.
    * - ``MAX_TREES_PER_PLOT``
      - ``int``
-     - the maximum number of trees an individual plot can hold
+     - The maximum number of trees an individual plot can hold.
    * - ``MAX_TREE_HEIGHT``
      - ``int``
-     - the maximum height of an individual tree
+     - The maximum height of an individual tree.
    * - ``DDBASE``
      - ``float``
-     - degree day base for growth (°C). Typically ``5``.
+     - Degree day base for growth (°C). Typically ``5``.
    * - ``PHIB``
      - ``float``
-     - fraction of solar radiation that is direct
+     - Fraction of solar radiation that is direct.
    * - ``PHID``
      - ``float``
-     - fraction of solar radiation that is diffuse
+     - Fraction of solar radiation that is diffuse.
    * - ``AET_RATIO``
      - ``float``
-     - ratio of Actual Evapotranspiration to Potential Evapotranspiration
+     - Ratio of Actual Evapotranspiration to Potential Evapotranspiration.
    * - ``WTD``
      - ``float``
      -
    * - ``ALLOW_REGENERATION``
      - ``bool``
-     - allow trees to regenerate stochastically
+     - Allow trees to regenerate stochastically.
    * - ``CLIMATE_RANDOM``
      - ``bool``
-     - Setting this parameter to False results in reproducible runs. Setting it True will make each run have random climate, as much as statistics allow.
+     - Setting this parameter to False results in reproducible runs. Setting it to True will make each run have random climate, as much as statistics allow.
    * - ``PERMAFROST``
      - ``bool``
-     - toggle switch for permafrost module
+     - Toggle switch for permafrost module.
    * - ``WILDFIRE``
      - ``bool``
-     - toggle switch for wildfire module
+     - Toggle switch for wildfire module.
    * - ``INSECT_OUTBREAK``
      - ``bool``
-     - If true, a combination of warm spring and stressed trees result in greater mortality than SMORT & AMORT; if false, not activated
+     - If true, a combination of warm spring and stressed trees result in greater mortality than SMORT & AMORT; if false, not activated.
    * - ``DEBUG``
      - ``bool``
-     - toggle for debug mode
+     - Toggle for debug mode.
 
 
 File Path Parameters
@@ -101,19 +87,19 @@ File Path Parameters
    * - Parameter
      - Description
    * - ``DEM_file_path``
-     - the path to the input DEM, specified by ``--dem`` flag
+     - The path to the input DEM, specified by the ``--dem`` flag.
    * - ``DEM_no_data``
-     - empty DEM for fallback
+     - Empty DEM for fallback.
    * - ``elevation_lapse_rate_adjustment_matrix_filepath``
-     - the path to the DEM temperature offset data
+     - The path to the DEM temperature offset data.
    * - ``monthly_radiation_files_path``
-     - the path to month by month radiation data
+     - The path to month by month radiation data.
    * - ``Radiation_fraction_file_path``
      -
    * - ``Site_index_file_path``
-     - path to a file containing a per plot index value
+     - Path to a file containing a per-plot index value.
    * - ``Site_index``
-     - value describing how well species perform at a site (1 = good, 5 = poor)
+     - Value describing how well species perform at a site (1 = good, 5 = poor).
 
 
 Climate Configuration
@@ -208,9 +194,6 @@ Output Control Parameters
 Soil Parameters
 ---------------
 
-.. Soil properties are fetched automatically from online services using LAT/LON,
-   but can be overridden manually. Describe what each parameter represents.
-
 .. list-table::
    :header-rows: 1
    :widths: 30 70
@@ -239,10 +222,6 @@ Soil Parameters
 
 Species Parameters
 ------------------
-
-.. The ``species`` key holds a dictionary keyed by 4-letter species code (e.g. ``"BEPA"``,
-   ``"PIGL"``). Describe each per-species parameter below.
-   The inline comments in driver_latest.py are a good source for these descriptions.
 
 .. list-table::
    :header-rows: 1

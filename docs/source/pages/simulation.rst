@@ -3,7 +3,10 @@ The Simulation Loop
 
 .. This page walks through what happens inside forse.py from start to finish.
    The goal is that a developer reading this can follow the code without getting lost.
-
+This page describes in greater depth what happens when the model is called. It includes 
+more detailed descriptions of the driver file architecture, the order in which simulation components
+are performed, and a few references to specific code segments. It aims to provide a simple yet effective
+explanation on how to look at the model.
 
 Startup and Initialization
 ---------------------------
@@ -15,6 +18,35 @@ Startup and Initialization
    - Light "arrows" (ray directions + solar proportions) are pre-computed once
    - The HDF5 output file is opened
    Mention the initialization() function in forse.py.
+
+Running the Driver
+^^^^^^^^^
+
+The FORSE model, as described previously, is built around the driver architecture. The driver provides data and configuration
+settings that are necessary for each run. 
+
+The driver might at first seem to be a generic configuration file, but it is important to note that it itself is actually Python source.
+FORSE does not simply parse it as data, it reads in its contents and executes them as Python, allowing for the resulting dictionary to
+be built and accessible in the same scope as ``main()`` (or any other function in ``forse.py``). The following line covers this:
+
+.. code:: python
+    exec(open(driver_file).read())
+
+The ``open().read()`` combination accesses the contents of the ``.py`` driver as raw text data. Having read it in, ``exec()`` instructs the 
+interpreter to run the code. 
+
+Building Data Structures
+^^^^^^^^^
+
+FORSE uses the **G**\eospatial **D**\ata **A**\bstraction **L**\ibrary (`GDAL <https://gdal.org/en/stable/>_`) for parsing DEM data. GDAL is
+a very common open source tool for remote sensing and earth science applications. DEM files are specified in the driver file, and parsed into a
+NumPy matrix during the initialization process, being accessible by the key ``DEM_mat`` withing the driver dictionary.
+
+Additional 3D tensors are packed into the driver dictionary using source data files. 3D matrices are usually (plot X dimensions) x (plot Y dimensions) x (speciefied metric).
+For instance, the species code matrix is (X dimension) x (Y dimension) x MAX_TREES_PER_PLOT, where each column is a list of tree species in that plot. All of these data structures
+are stored in the driver dictionary.
+
+
 
 
 The Annual Loop
