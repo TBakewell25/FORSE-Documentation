@@ -49,6 +49,8 @@ are stored in the driver dictionary.
 
 
 
+
+
 The Annual Loop
 ---------------
 
@@ -56,23 +58,45 @@ The Annual Loop
    Each subsection below is one step in the loop. Fill in what each step does,
    which function(s) it calls, and what data it reads/writes.
 
+At the top level FORSE collects and writes data on an annual basis. Beginning with the first year specified in the driver file, and ending with some final year again provided to the driver,
+the model steps through incrementally and models forest dynamics. This process can begin no earlier than the completion of initialization, and is the most resource intensive part of execution.
+
 Weather Generation
 ^^^^^^^^^^^^^^^^^^
 
-.. generate_weather() — monthly temperature and precipitation matrices,
-   lapse rate adjustment from DEM elevation, GDD accumulation, dry day fraction.
+Part of the simulation is monthly weather generation provided by the routines available in ``weather.py``. The top level interface for this module, ``generate_weather()`` builds the following data sets:
+   
+    * **Temperature**\: Temperatures are generated for each day in a year using a truncated Gaussian distribution based on historical averages, and packed into monthly temperature matrices.
+    * **Precipitation**\: Just as with temperature, another distribution is used to generate a monthly precipitation matrix.
+    * **Growing Degree Days**\: Multiple routines are available within the weather module for calculating GDD.
+    * **Dry Day Fraction**\: Dry day fraction is calculated as the number of cumulative "dry days" divided by the number of days within the growing season for the year. The dry day accumulator matrix is itself
+                                build using the ``soil_moisture()`` function applied to monthly data.
+    
+Additionally worth noting is the following:
+
+    * **Lapse Rate Adjustments**\: FORSE is a spatially explicit model, and therefore takes special care to model the environment it simulates with a high degree of accuracy and specificity. The weather module
+                                    makes use of baseline averages for monthly temperatures which it then modifies with the lapse rate adjustment matrix to create plot by plot temperature matrix that 
+                                    reflects the variability in temperature caused by the surface elevation and aspect. 
 
 Tree Mortality
 ^^^^^^^^^^^^^^
 
-.. kill_trees() — two mortality mechanisms: age-based (species max age) and
-   stress-based (accumulated stress flags). Describe how a tree is "removed."
+A crucial mechanism of our gap model is the ability to remove dead trees. Weather by natrual causes, or by human intervention, the death of trees and the change of the canopy is crucial to forest
+dynamics. Trees die in FORSE by two mechanisms: **age-based** and **stress-based**. We see these processes come into play in the ``kill_trees()`` function.
+
+A few metrics are considered when deciding whether or not an individual tree will die. First, we reference the individual stress flag for each tree, which accumulates as the tree experiences sub-optimal
+conditions. For **stress-based** mortality if the stress flag is greater than two, and a pseudo-random number associated with the tree is less than approximately 0.37, the tree is dead and it is zeroed 
+out in the DBH matrix. For age-based mortality we check if a separate pseudo-random number associated with the tree is less than the tree's age based mortality probability, which we have derived from 
+``AGE_MAX`` in the driver file, and if it is we again zero out the DBH bookeeping.
+
+This work is done in parallel using Numba, and returns updated shallow copies of the aforementioned data structures.
 
 Individual Tree Values
 ^^^^^^^^^^^^^^^^^^^^^^
 
 .. compute_individual_tree_values() — converts DBH to height (via allomlib),
    then to leaf area, biomass, and basal area. Explain why this runs before light.
+The ``compute_individual_tree_values()`` from the ``create_specialized_driver_code.py``
 
 3D Leaf Area
 ^^^^^^^^^^^^
