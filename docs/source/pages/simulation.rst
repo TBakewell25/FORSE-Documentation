@@ -96,7 +96,28 @@ Individual Tree Values
 
 .. compute_individual_tree_values() — converts DBH to height (via allomlib),
    then to leaf area, biomass, and basal area. Explain why this runs before light.
-The ``compute_individual_tree_values()`` from the ``create_specialized_driver_code.py``
+The ``compute_individual_tree_values()`` from the ``create_specialized_driver_code.py`` applies species specific allometric equations from the driver to derive the following values, each of which
+is packed into a plot-wise matrix:
+
+        * individual height (m)
+        * individual total leaf area (m^2)
+        * individual biomass (kg)
+        * optimal growth increment (cm)
+        * individual optimal biomass (kg)
+        * individual basal area (m^2)
+        * individual biovolume (m^3)
+        * individual optimal biovolume (m^3)
+        * individual optimal biovolume increment (m^3)
+        * water logging factor (unitless)
+
+The ``create_specialized_drive_code.py`` file uses ``Mako``, a Python library that templates its contents, which exist largely as standard Python strings, into runnable Python code. Reading through
+this file (which is heavily recommended for better understanding the driver architecture) you will see many code blocks that feature ``$`` and ``%`` characters. These are used at runtime to provide 
+Mako with targets where it will substitute in values specified by the driver file and then run the code. In short, we are using the driver file to configure custom behavior in our Python code, and then running
+it.
+
+For ``compute_individual_tree_values()`` we are, via the templating system, assigning each tree species a number and calling the requisite allometric functions associated with it. The driver file
+contains these specific functions, Mako allows us to design an architecture that is able to call them without knowing what they will be or how many of them will exist until runtime substitution.
+This is crucial to the modularity of the model, and is the best justification for the driver file architecture over a simple plain-text configuration file.
 
 3D Leaf Area
 ^^^^^^^^^^^^
