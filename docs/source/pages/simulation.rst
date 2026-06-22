@@ -122,8 +122,12 @@ This is crucial to the modularity of the model, and is the best justification fo
 3D Leaf Area
 ^^^^^^^^^^^^
 
-.. compute_actual_leaf_area() — distributes each tree's leaf area into the
-   3D voxel grid, which is the input to the light calculation.
+Leaf area calculation is another example of a model paramater that is generated at runtime dynamically by way of the driver file. Individual species leaf area enters the model via 
+the aforementioned ``compute_individual_tree_values()`` function, being packed into the matrix ``total_leaf_area_matrix`` which has a plot-by-plot tree-by-tree represenation of leaf area.
+
+The function ``compute_actual_leaf_area()`` calculates leaf density (leaf area / tree height) for each individual, and accumulates this value for each increment in the foliage column for that 
+tree. That is to say, for each elevation increment in an individual tree the density at that elevation is added to a running total for that plot. This comes to form an important input for
+light calculation.
 
 Light Calculation
 ^^^^^^^^^^^^^^^^^
@@ -131,18 +135,27 @@ Light Calculation
 .. compute_light() → light3d.py — see :doc:`simulation` for full detail.
    Brief mention here: Beer-Lambert attenuation through the 3D leaf area matrix.
 
+
+
 Growth Factors
 ^^^^^^^^^^^^^^
 
 .. compute_species_factors_weather() and compute_species_factors_soil() —
    each returns a per-species, per-plot factor matrix (values 0–1).
    Describe what conditions drive each factor toward 0 (growth limitation).
+Growth factors are used to represent the exent to which external conditions limit the growth of species in the model. The function ``compute_species_factors_weather()``, another driver
+function, provides factor matrices for two cases: growing degree days and soil moisture.
+
+Using the species specific functions built by the driver file, this function uses existing GDD and soil moisture matrices to calculate on a per-species basis how the growth of a tree will be limited
+by environmental factors. The end product is a 3D tensor of values between 0 and 1, where each entry represents a specific tree on a specific plot. When annual biomass increment is calculated these 
+matrices become relevant, as the total increment value is scaled using them. Consult extant driver files for examples of species specific implementations of calculating these factors.
 
 Crown Base
 ^^^^^^^^^^
 
 .. compute_crown_base() — crown recession as a function of light availability.
    Self-pruning of shaded lower branches.
+
 
 Light Factor
 ^^^^^^^^^^^^
