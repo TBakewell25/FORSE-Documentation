@@ -20,7 +20,7 @@ Startup and Initialization
    Mention the initialization() function in forse.py.
 
 Running the Driver
-^^^^^^^^^
+^^^^^^^^^^^^^^^^^^
 
 The FORSE model, as described previously, is built around the driver architecture. The driver provides data and configuration
 settings that are necessary for each run. 
@@ -36,7 +36,7 @@ The ``open().read()`` combination accesses the contents of the ``.py`` driver as
 interpreter to run the code. 
 
 Building Data Structures
-^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 FORSE uses the **G**\eospatial **D**\ata **A**\bstraction **L**\ibrary (`GDAL <https://gdal.org/en/stable/>`_) for parsing DEM data. GDAL is
 a very common open source tool for remote sensing and earth science applications. DEM files are specified in the driver file, and parsed into a
@@ -70,7 +70,7 @@ Part of the simulation is monthly weather generation provided by the routines av
     * **Precipitation**\: Just as with temperature, another distribution is used to generate a monthly precipitation matrix.
     * **Growing Degree Days**\: Multiple routines are available within the weather module for calculating GDD.
     * **Dry Day Fraction**\: Dry day fraction is calculated as the number of cumulative "dry days" divided by the number of days within the growing season for the year. The dry day accumulator matrix is itself
-                                build using the ``soil_moisture()`` function applied to monthly data.
+                                built using the ``soil_moisture()`` function applied to monthly data.
     
 Additionally worth noting is the following:
 
@@ -193,22 +193,22 @@ three-phased approach:
 
 New sprouts are chosen through a structured, but randomized process. A large tensor, the seed bank, stores the seed factor values. The seed bank is four dimensions: the lag year, the species code, and the 
 x and y of the plot. The novel variable here is lag year. In order for a species to be eligible as a transplant candidate it must first move through a set number of lag years to reach maturity. The number 
-of requisite lag year before a seed weight is elligible for use in regeneration is specified on a species-by-species basis in the driver file. Every iteration of the annual cycle the seed weight for a 
+of requisite lag year before a seed weight is eligible for use in regeneration is specified on a species-by-species basis in the driver file. Every iteration of the annual cycle the seed weight for a 
 species and plot is moved forward an additional lag year to accrue maturity, unless a sprout factor of 0 is observed, in which case all seed bank entries for that species on that plot are zeroed out. For
 each species being modeled its corresponding lag entry is checked in the seed bank, and if it is non-zero the corresponding seed factor is recorded.
 
 **2. Dartboard Species Selection**
 
-Each iteration the function pulls the transplant count (seed bank entry) at the lag requirement for each species. These values are not literal sappling counts, but rather continuous values less than one 
+Each iteration the function pulls the transplant count (seed bank entry) at the lag requirement for each species. These values are not literal sapling counts, but rather continuous values less than one 
 which will describe the dominance of that species relative to others in regeneration. A rough tree capacity per plot is estimated, describing an upper bound for how many new trees may grow on a plot at 
-any given iteration. The collected transplant counts (one for each species) are normalized together to the range [0,1], distributing them as probabilities who's frequency is scaled relative to the magnitude 
+any given iteration. The collected transplant counts (one for each species) are normalized together to the range [0,1], distributing them as probabilities whose frequency is scaled relative to the magnitude 
 of their original seed bank value. For each of the tree capacity spaces in the slot a value is randomly sampled from the [0,1] range and used to select a tree species.
 
 **3. Planting**
 
 With a species probabilistically selected, book keeping must now be performed to register it as having sprouted. An entry is placed in a free spot in the DBH matrix, with its value being hardcoded as a 
 random sampling from a Gaussian centered at 2.5cm. The corresponding species code, crown base, and stress flags are set for the tree (with the latter two being 0). The specific location of the tree is 
-calculated using `Delaunay triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation`_ to find the largest available gap, and the birth year for the tree is recorded.
+calculated using `Delaunay triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation>`_ to find the largest available gap, and the birth year for the tree is recorded.
 
 
 Logging Treatment
@@ -217,10 +217,10 @@ Logging Treatment
 .. log_trees() — only runs if LOGGING_TREATMENT_TYPE is set in the driver.
    Describe how harvested trees are marked (DBH = 0, species = -1).
 Logging logic only runs if the ``LOGGING_TREATMENT_TYPE`` switch is set in the driver, and is not necessary for FORSE to run. When a treatment type is specified the ``log_trees()`` function will run
-to prune trees accordingly. There are three specific treatement types for the logging:
+to prune trees accordingly. There are three specific treatment types for the logging:
 
-    * **Shelterwood**\: Shelterwood logging is a method wherein mature trees are harvested with priority, leaving younger healthy specimen to continue growing. At the beginning of every logging cycle 
-                        the cumulative DBH is calculated for each plot for each tree of the target species, being recorded plot-by-plot in ``basal_area_matrix``. A separate matrix, ``basal_area_all_matrix``
+    * **Shelterwood**\: Shelterwood logging is a method wherein mature trees are harvested with priority, leaving younger healthy specimens to continue growing. At the beginning of every logging cycle 
+                        the cumulative DBH is calculated for each plot for each tree of the target species, being recorded plot-by-plot in ``basal_area_matrix``. A separate matrix, ``basal_area_matrix_all``
                         records the cumulative basal area of all species for later reference. 
 
                         All trees in the stand are sorted by ascending basal area from the ``basal_area_matrix``, leaving non-target 
@@ -265,6 +265,32 @@ Annual Output
 .. Describe what is written to the HDF5 file each year: per-plot, per-species
    tables of DBH, species code, basal area, biomass, stem density.
    Mention that the driver file itself is stored in the output for reproducibility.
+
+Outputs for the FORSE model are currently stored in the HDF (hierarchical data format) file format. HDF5 allows for large sets of data, in this case multi-dimensional arrays, to be stored as if in 
+a file system. In FORSE the output HDF5, the name of which is specified as a command line argument, stores year-by-year data for multiple metrics produce during simulation. The following is a 
+list of output sets included in the HDF5 file, some of which are only written when the ``DEBUG`` flag is specified:
+
+    1. ``DBH``: DBH for each tree in each plot.
+    2. ``Species Code``: species codes of each tree in each plot.
+    3. ``Basal Area``: cumulative basal area of each species on each plot.
+    4. ``Biomass``: cumulative biomass of each species on each plot.
+    5. ``DBH Distribution``: stem count per species per plot for DBH >= 8.0cm.
+    6. ``Degree Days``: growing degree days per plot. ``DEBUG`` only.
+    7. ``Relative Dry Days``: relative dry days per plot. ``DEBUG`` only.
+    8. ``Relative Soil Fertility``: relative soil fertility per plot. ``DEBUG`` only.
+    9. ``Growing Degree Days Factor``: GDD growth factor per species per plot. ``DEBUG`` only.
+    10. ``Soil Moisture Factor``: soil moisture growth factor per species per plot. ``DEBUG`` only.
+    11. ``Soil Fertility Factor``: soil fertility growth factor per species per plot. ``DEBUG`` only.
+    12. ``Available Light Factor``: available light factor per individual tree per plot. ``DEBUG`` only.
+    13. ``Growth Factor``: combined multiplicative growth factor per individual tree per plot. ``DEBUG`` only.
+    14. ``Sprout Factor``: regeneration sprout factor per species per plot. ``DEBUG`` only.
+    15. ``Tree Position``: spatial position (x, y, z) and birth year for each individual tree. ``DEBUG`` only.
+    16. ``Water Logging Factor``: water logging factor per individual tree per plot. ``DEBUG`` only.
+    17. ``Crown Base``: crown base height per individual tree per plot. ``DEBUG`` only.
+    18. ``Solar Radiation``: ground-level light factor per plot per month. ``DEBUG`` only.
+    19. ``Freeze Melt Depth``: freeze and melt depth per plot for each month of the year. ``PERMAFROST`` only.
+
+Additionally, the driver file is stored directly in the HDF5 output in two forms: as a pickled Python object under ``driver``, and as a raw text string under ``driver_as_string``. This ensures that any output file is fully self-contained and the exact configuration used to produce it can always be recovered.
 
 
 The Growth Model
