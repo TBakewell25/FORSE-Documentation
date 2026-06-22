@@ -1,3 +1,6 @@
+.. image:: ../images/logo.png
+
+
 =================================
 Welcome to FORSE's documentation!
 =================================
