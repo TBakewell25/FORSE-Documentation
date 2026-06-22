@@ -38,11 +38,11 @@ interpreter to run the code.
 Building Data Structures
 ^^^^^^^^^
 
-FORSE uses the **G**\eospatial **D**\ata **A**\bstraction **L**\ibrary (`GDAL <https://gdal.org/en/stable/>_`) for parsing DEM data. GDAL is
+FORSE uses the **G**\eospatial **D**\ata **A**\bstraction **L**\ibrary (`GDAL <https://gdal.org/en/stable/>`_) for parsing DEM data. GDAL is
 a very common open source tool for remote sensing and earth science applications. DEM files are specified in the driver file, and parsed into a
-NumPy matrix during the initialization process, being accessible by the key ``DEM_mat`` withing the driver dictionary.
+NumPy matrix during the initialization process, being accessible by the key ``DEM_mat`` within the driver dictionary.
 
-Additional 3D tensors are packed into the driver dictionary using source data files. 3D matrices are usually (plot X dimensions) x (plot Y dimensions) x (speciefied metric).
+Additional 3D tensors are packed into the driver dictionary using source data files. 3D matrices are usually (plot X dimensions) x (plot Y dimensions) x (specified metric).
 For instance, the species code matrix is (X dimension) x (Y dimension) x MAX_TREES_PER_PLOT, where each column is a list of tree species in that plot. All of these data structures
 are stored in the driver dictionary.
 
@@ -81,13 +81,13 @@ Additionally worth noting is the following:
 Tree Mortality
 ^^^^^^^^^^^^^^
 
-A crucial mechanism of our gap model is the ability to remove dead trees. Weather by natrual causes, or by human intervention, the death of trees and the change of the canopy is crucial to forest
+A crucial mechanism of our gap model is the ability to remove dead trees. Weather by natural causes, or by human intervention, the death of trees and the change of the canopy is crucial to forest
 dynamics. Trees die in FORSE by two mechanisms: **age-based** and **stress-based**. We see these processes come into play in the ``kill_trees()`` function.
 
 A few metrics are considered when deciding whether or not an individual tree will die. First, we reference the individual stress flag for each tree, which accumulates as the tree experiences sub-optimal
 conditions. For **stress-based** mortality if the stress flag is greater than two, and a pseudo-random number associated with the tree is less than approximately 0.37, the tree is dead and it is zeroed 
 out in the DBH matrix. For age-based mortality we check if a separate pseudo-random number associated with the tree is less than the tree's age based mortality probability, which we have derived from 
-``AGE_MAX`` in the driver file, and if it is we again zero out the DBH bookeeping.
+``AGE_MAX`` in the driver file, and if it is we again zero out the DBH bookkeeping.
 
 This work is done in parallel using Numba, and returns updated shallow copies of the aforementioned data structures.
 
@@ -122,8 +122,8 @@ This is crucial to the modularity of the model, and is the best justification fo
 3D Leaf Area
 ^^^^^^^^^^^^
 
-Leaf area calculation is another example of a model paramater that is generated at runtime dynamically by way of the driver file. Individual species leaf area enters the model via 
-the aforementioned ``compute_individual_tree_values()`` function, being packed into the matrix ``total_leaf_area_matrix`` which has a plot-by-plot tree-by-tree represenation of leaf area.
+Leaf area calculation is another example of a model parameter that is generated at runtime dynamically by way of the driver file. Individual species leaf area enters the model via 
+the aforementioned ``compute_individual_tree_values()`` function, being packed into the matrix ``total_leaf_area_matrix`` which has a plot-by-plot tree-by-tree representation of leaf area.
 
 The function ``compute_actual_leaf_area()`` calculates leaf density (leaf area / tree height) for each individual, and accumulates this value for each increment in the foliage column for that 
 tree. That is to say, for each elevation increment in an individual tree the density at that elevation is added to a running total for that plot. This comes to form an important input for
@@ -140,10 +140,7 @@ Light Calculation
 Growth Factors
 ^^^^^^^^^^^^^^
 
-.. compute_species_factors_weather() and compute_species_factors_soil() —
-   each returns a per-species, per-plot factor matrix (values 0–1).
-   Describe what conditions drive each factor toward 0 (growth limitation).
-Growth factors are used to represent the exent to which external conditions limit the growth of species in the model. The function ``compute_species_factors_weather()``, another driver
+Growth factors are used to represent the extent to which external conditions limit the growth of species in the model. The function ``compute_species_factors_weather()``, another driver
 function, provides factor matrices for two cases: growing degree days and soil moisture.
 
 Using the species specific functions built by the driver file, this function uses existing GDD and soil moisture matrices to calculate on a per-species basis how the growth of a tree will be limited
@@ -153,15 +150,24 @@ matrices become relevant, as the total increment value is scaled using them. Con
 Crown Base
 ^^^^^^^^^^
 
-.. compute_crown_base() — crown recession as a function of light availability.
-   Self-pruning of shaded lower branches.
+The model uses ``compute_crown_base()`` to compute crown recession as a function of light availability. Every tree has a compensation point (CP), specified in FORSE by a set of species specific
+values in the driver, the point at which the energy gained by photosynthesis equals the energy expended on respiration and metabolism, and the growth rate is 0. Branches below the compensation point,
+that is branches that receive so little light that they are a drain on resources are pruned, thus changing the crown base.
 
+For this process an iterative loop steps down in 1 meter increments from the top of the tree to its current crown base, resetting the crown base if it ever encounters a layer where available light is equal
+to or below the CP. Available light is taken directly from the ``available_light_mat``, and CP is again provided by the driver file. After each run of this function an updated crown base matrix is provided.
 
 Light Factor
 ^^^^^^^^^^^^
 
-.. light_factor_compute() — species-specific response to available light at
-   crown base. Shade-tolerant vs. intolerant species behave differently here.
+As mentioned above in the discussion of growth factors, the availability of light, or light factor, must be calculated for each plot to determine the incremental growth the trees there experience.
+For an individual tree in the stand its light factor is computed as the average of its species light factor over its height. For each layer between the crown base and the top of the tree the associated 
+light factor for that species is summed, and the final value is divided by the total tree height, giving the averaged value of light factor for that individual.
+
+Also computed is ground light factor, the amount of light which reaches the ground. This value is simply the light factor for each species at z=0 (0 elevation).
+
+The light factor helps divide shade-tolerant from shade-intolerant species. Species which are more robust against lower amounts of light end up with higher light factors, while species which are more 
+reliant on light end up with lower light factors. The end product is the growth of these shade-intolerant species is restricted relative to their more rugged shade-tolerant counterparts. 
 
 Tree Growth
 ^^^^^^^^^^^
@@ -169,6 +175,12 @@ Tree Growth
 .. grow_trees() — the multiplicative growth model. Explain the formula:
    DBH increment = optimal increment × GDD factor × drought factor ×
    light factor × soil factor. Describe how stress flags are updated.
+
+In FORSE tree growth is manifested directly by changes in diameter breast height (DBH). The function ``grow_trees()`` accepts a growth increment as well as many of the aforementioned factors to determine 
+how DBH changes annually for an individual tree. The final increment is expressed as **optimal increment** × **GDD factor** × **drought factor** × **light factor** × **soil factor**. 
+
+Optimal growth increment (OGI) is calculated in the driver-reliant ``compute_individual_tree_values()`` function, making use of species specific allometric equations. See **Growth Factors** above for
+information regarding GDD factors. See **Light Factor** above for information regarding light factor.
 
 Regeneration
 ^^^^^^^^^^^^
