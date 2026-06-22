@@ -1,4 +1,4 @@
-.. image:: ./images/logo.jpg
+.. image:: ./images/logo.png
 
 
 =================================
