@@ -185,14 +185,79 @@ information regarding GDD factors. See **Light Factor** above for information re
 Regeneration
 ^^^^^^^^^^^^
 
-.. sprout_saplings_v2_3() — two pathways: seedling establishment (ground
-   light dependent) and stump sprouting from recently harvested trees.
+The regeneration logic represents the counterbalance of the tree pruning logic. Whereas stressed or logged trees are removed from the stand, areas with optimal growing conditions sprout new trees which 
+become part of the annual cycle. The ``sprout_saplings_v2_3()`` function adds new saplings to individual grid squares which will in turn continue to grow into mature trees. Regeneration occurs in a 
+three-phased approach:
+
+**1. Seed Bank Updates**
+
+New sprouts are chosen through a structured, but randomized process. A large tensor, the seed bank, stores the seed factor values. The seed bank is four dimensions: the lag year, the species code, and the 
+x and y of the plot. The novel variable here is lag year. In order for a species to be eligible as a transplant candidate it must first move through a set number of lag years to reach maturity. The number 
+of requisite lag year before a seed weight is elligible for use in regeneration is specified on a species-by-species basis in the driver file. Every iteration of the annual cycle the seed weight for a 
+species and plot is moved forward an additional lag year to accrue maturity, unless a sprout factor of 0 is observed, in which case all seed bank entries for that species on that plot are zeroed out. For
+each species being modeled its corresponding lag entry is checked in the seed bank, and if it is non-zero the corresponding seed factor is recorded.
+
+**2. Dartboard Species Selection**
+
+Each iteration the function pulls the transplant count (seed bank entry) at the lag requirement for each species. These values are not literal sappling counts, but rather continuous values less than one 
+which will describe the dominance of that species relative to others in regeneration. A rough tree capacity per plot is estimated, describing an upper bound for how many new trees may grow on a plot at 
+any given iteration. The collected transplant counts (one for each species) are normalized together to the range [0,1], distributing them as probabilities who's frequency is scaled relative to the magnitude 
+of their original seed bank value. For each of the tree capacity spaces in the slot a value is randomly sampled from the [0,1] range and used to select a tree species.
+
+**3. Planting**
+
+With a species probabilistically selected, book keeping must now be performed to register it as having sprouted. An entry is placed in a free spot in the DBH matrix, with its value being hardcoded as a 
+random sampling from a Gaussian centered at 2.5cm. The corresponding species code, crown base, and stress flags are set for the tree (with the latter two being 0). The specific location of the tree is 
+calculated using `Delaunay triangulation <https://en.wikipedia.org/wiki/Delaunay_triangulation`_ to find the largest available gap, and the birth year for the tree is recorded.
+
 
 Logging Treatment
 ^^^^^^^^^^^^^^^^^
 
 .. log_trees() — only runs if LOGGING_TREATMENT_TYPE is set in the driver.
    Describe how harvested trees are marked (DBH = 0, species = -1).
+Logging logic only runs if the ``LOGGING_TREATMENT_TYPE`` switch is set in the driver, and is not necessary for FORSE to run. When a treatment type is specified the ``log_trees()`` function will run
+to prune trees accordingly. There are three specific treatement types for the logging:
+
+    * **Shelterwood**\: Shelterwood logging is a method wherein mature trees are harvested with priority, leaving younger healthy specimen to continue growing. At the beginning of every logging cycle 
+                        the cumulative DBH is calculated for each plot for each tree of the target species, being recorded plot-by-plot in ``basal_area_matrix``. A separate matrix, ``basal_area_all_matrix``
+                        records the cumulative basal area of all species for later reference. 
+
+                        All trees in the stand are sorted by ascending basal area from the ``basal_area_matrix``, leaving non-target 
+                        species as 0, and the target species sorted from smallest target to largest target. We iterate across this list in reverse so that we encounter the largest trees of the target 
+                        species first.
+
+                        Beginning with the largest specimen, trees are searched with some distance ``OPPORTUNITY_CUT_DISTANCE`` (3D Euclidean distance) and logging masks are created. Two conditions decide 
+                        whether a tree is eligible for logging: whether or not it is stressed enough (stress_flag > OPPORTUNITY_CUT_MIN_STRESS), or whether these neighbor trees are large enough (DBH > min_dbh).
+                        For all trees within this mask (which is always modified to include the initial base tree) their ``DBH``, ``species_code``, ``stress_flag``, 
+                        ``crown_base``, and ``tree_position`` are zeroed out to signify their being pruned. 
+
+                        This process continues until the total removed basal area, which is tracked across iterations, passes some threshold which is a percentage of the total. 
+
+                        In shelterwood logging we undergo the above process three times: two initial times with ``OPPORTUNITY_CUT_MIN_DBH`` as the harvesting threshold, and a third time with ``SHELTERWOOD_DBH[2]``,
+                        a potentially different value, as threshold.
+                     
+    * **Stripcut**\: Stripcut logging removes all trees within parallel strips of a specified width while leaving the intervening strips intact. Unlike shelterwood, it is purely geometric — no
+                     species or size targeting is performed.
+
+                     Before any cut logic is applied, each tree's within-plot local position is converted to absolute stand coordinates using the GDAL geotransform read from the DEM file.
+                     This ensures the strip geometry is consistent across the entire stand rather than being computed independently per plot.
+
+                     A 1D projection of each tree's position is then computed by taking the dot product of its absolute coordinates with a unit vector defined by ``LOGGING_STRIPCUT_DIRECTION``
+                     (in degrees). This collapses the 2D stand into a single axis perpendicular to the strip boundaries, reducing the problem to one dimension.
+
+                     Two boolean masks are derived from sine waves of period ``T = LOGGING_STRIPCUT_CLEAR_WIDTH + LOGGING_STRIPCUT_KEEP_WIDTH``, one shifted relative to the other by half the
+                     difference between the cut and keep widths. Combining these with OR (when the cut width is greater than or equal to the keep width) or AND (when it is smaller) produces a
+                     repeating pattern of cut strips of width ``LOGGING_STRIPCUT_CLEAR_WIDTH`` separated by retained strips of width ``LOGGING_STRIPCUT_KEEP_WIDTH``, running across the full
+                     stand in the specified direction. All trees falling within the cut strips have their ``DBH``, ``species_code``, ``stress_flag``, ``crown_base``, and ``tree_position``
+                     zeroed out.
+
+    * **Clearcut**\: Clearcut logging is the simplest of the three treatments. All trees in the stand are removed unconditionally in a single pass — no species targeting, no size threshold,
+                     and no spatial geometry. Every entry in ``DBH_matrix``, ``species_code_matrix``, ``stress_flag_matrix``, ``crown_base_matrix``, and ``tree_position_matrix`` is set to
+                     zero (with ``species_code`` set to ``-1`` to indicate an empty slot). The driver is passed to the function to allow for future extensions, such as leaving small-diameter
+                     stems, but no such condition is currently implemented.
+
+
 
 Annual Output
 ^^^^^^^^^^^^^
