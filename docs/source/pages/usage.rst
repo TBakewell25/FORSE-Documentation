@@ -16,15 +16,15 @@ To use FORSE, first download the source code via the GitHub repository:
 Building the Run Environment
 ----------------------------
 
-Running the FORSE model requires building a runtime environment for the many dependencies. Python environments 
+Running the FORSE model requires building a runtime environment (RTE) for the many dependencies. Python environments 
 provide a way to install many library packages (NumPy, Matplotlib, etc.) without disturbing the host system (i.e 
-your computer). The FORSE environment is buildable both via Conda and Venv, although Conda is more common in practice.
+your computer). The FORSE environment is buildable both via Conda and Venv, with Conda being the standard method.
 
 
 Build With Conda
 ----------------
 
-First, `Conda <http://www.anaconda.org>`_ must be installed as a sytem wide package. Conda (or 'anaconda', depending on your installation)
+First, `Conda <http://www.anaconda.org>`_ must be installed as a system wide package. Conda (or 'anaconda', depending on your installation)
 provides the aforementioned environment for running FORSE. It is possible that Conda is already installed on your system if you are not using
 your personal machine, consult your system administrator if you are unsure.
 

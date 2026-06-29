@@ -20,7 +20,7 @@ global Conda-Store environment accessed by two entrypoints: the `Notebook` inter
 .. image:: ../images/smce/environ.png
 
 The `Notebook` provides the user with the familiar Jupyter Notebook interactive interface, allowing the combination of markup text and runnable Python code. 
-The `Console` acts as a standard Python REPL (**R**\ead **E**\valuate **P**\rint **L**\oop), being designed for line by line execution of code by a Python interpreter. Most users
+The `Console` acts as a standard Python REPL (**R**\ead **E**\valuate **P**\rint **L**\oop), being designed for line-by-line execution of code by a Python interpreter. Most users
 will find more value in the `Notebook`, as it allows for more complete scripting and is intended for work that will persist.
 
 Additionally, a full terminal environment is available. This allows the user to interact directly with FORSE in the same was as described in :doc:`pages/usage`. Users working in the terminal
